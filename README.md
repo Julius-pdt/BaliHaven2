@@ -1,4 +1,4 @@
-# BALI HAVEN — 2
+# BALI HAVEN 2
 
 > Discover Your Private Paradise in Bali — platform pemesanan villa mewah dengan estetika Tropical Luxury, Modern Minimalist, dan Bali Aesthetic.
 
@@ -152,7 +152,7 @@ bali-haven/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/username/bali-haven.git
+git clone https://github.com/Julius-pdt/BaliHaven2.git
 cd bali-haven
 
 # 2. Install dependencies (pilih salah satu)
