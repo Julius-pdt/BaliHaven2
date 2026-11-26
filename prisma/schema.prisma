@@ -1,0 +1,121 @@
+// BALI HAVEN - Prisma schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String?
+  passwordHash String?
+  role         String     @default("CUSTOMER") // CUSTOMER | ADMIN
+  phone        String?
+  avatarUrl    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  bookings     Booking[]
+  reviews      Review[]
+}
+
+model Villa {
+  id            String           @id @default(cuid())
+  slug           String           @unique
+  name           String
+  location       String           // Ubud, Canggu, Seminyak, Uluwatu, Nusa Dua, Sanur
+  address        String?
+  description    String
+  pricePerNight  Float
+  bedrooms       Int
+  bathrooms      Int
+  maxGuests      Int
+  rating         Float            @default(0)
+  reviewCount    Int              @default(0)
+  latitude       Float?
+  longitude      Float?
+  featured       Boolean          @default(false)
+  active         Boolean          @default(true)
+  amenities      String           // comma-separated
+  images         VillaImage[]
+  bookings       Booking[]
+  reviews        Review[]
+  availability   VillaAvailability[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model VillaImage {
+  id        String @id @default(cuid())
+  villaId   String
+  villa     Villa  @relation(fields: [villaId], references: [id], onDelete: Cascade)
+  url       String
+  caption   String?
+  order     Int    @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Booking {
+  id            String      @id @default(cuid())
+  bookingCode   String      @unique
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  villaId       String
+  villa         Villa       @relation(fields: [villaId], references: [id])
+  checkIn       DateTime
+  checkOut      DateTime
+  nights        Int
+  guests        Int
+  pricePerNight Float
+  subtotal      Float
+  taxes         Float
+  serviceFee    Float
+  totalAmount   Float
+  status        String      @default("PENDING") // PENDING | CONFIRMED | CANCELLED | COMPLETED
+  payment       Payment?
+  guestName     String
+  guestEmail    String
+  guestPhone    String?
+  specialRequest String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  bookingId     String    @unique
+  booking       Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  method        String    // BANK_TRANSFER | VIRTUAL_ACCOUNT | QRIS | CARD
+  amount        Float
+  status        String    @default("PENDING") // PENDING | PAID | FAILED | REFUNDED
+  reference     String?
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  villaId   String
+  villa     Villa    @relation(fields: [villaId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5
+  comment   String
+  authorName String
+  createdAt DateTime @default(now())
+}
+
+model VillaAvailability {
+  id        String   @id @default(cuid())
+  villaId   String
+  villa     Villa    @relation(fields: [villaId], references: [id], onDelete: Cascade)
+  date      DateTime
+  booked    Boolean  @default(false)
+  bookingId String?
+  createdAt DateTime @default(now())
+  @@unique([villaId, date])
+}
